@@ -1,0 +1,43 @@
+name: SonarCloud
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  sonarcloud:
+    name: SonarCloud Scan
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # so Sonar can compute proper history/coverage
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: |
+          npm ci || npm install
+
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@v2
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: "https://sonarcloud.io"
+        with:
+          args: >
+            -Dsonar.organization=jaymolinaro3-glitch
+            -Dsonar.projectKey=jaymolinaro3-glitch_node-express-mongodb-restapi
+            -Dsonar.projectName="node-express-mongodb-restapi"
+            -Dsonar.sources=.
+            -Dsonar.language=js
+            -Dsonar.sourceEncoding=UTF-8
